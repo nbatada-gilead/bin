@@ -44,7 +44,7 @@ sobj_B\$cell_type <- "B"
 sobj_combined <- merge(sobj_A, sobj_B)
 
 # Join layers for the combined Seurat object
-## sobj_combined <- JoinLayers(sobj_combined)
+sobj_combined <- JoinLayers(sobj_combined)
 
 sobj_combined <- NormalizeData(sobj_combined) ##
 

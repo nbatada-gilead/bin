@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Check for input arguments
+if [ "$#" -ne 4 ]; then
+    echo "Usage: $0 <path_to_seurat_RDS> <barcode_list_A> <barcode_list_B> <differential_genes_result>"
+    exit 1
+fi
+
+# Assign input arguments
+SEURAT_RDS=$1
+BARCODE_A=$2
+BARCODE_B=$3
+DIFF_GENES=$4
+
+# R script to generate violin plots for top 10 genes
+Rscript -e "
+# Load necessary libraries
+library(Seurat)
+library(dplyr)
+library(ggplot2)
+
+# Load the Seurat object
+seurat_obj <- readRDS('$SEURAT_RDS')
+
+# Load differential expression results
+deg_results <- read.csv('$DIFF_GENES', sep='\t', header=TRUE, row.names=1)
+
+# Identify top 10 upregulated and downregulated genes
+top10_up <- deg_results %>%
+  filter(avg_log2FC > 0) %>%
+  arrange(desc(avg_log2FC)) %>%
+  head(10) %>%
+  rownames()
+
+top10_down <- deg_results %>%
+  filter(avg_log2FC < 0) %>%
+  arrange(avg_log2FC) %>%
+  head(10) %>%
+  rownames()
+
+# Combine top genes
+top_genes <- c(top10_up, top10_down)
+
+# Read barcodes
+barcodesA <- readLines('$BARCODE_A')
+barcodesB <- readLines('$BARCODE_B')
+
+# Subset the Seurat object
+subset_seurat <- subset(seurat_obj, cells = c(barcodesA, barcodesB))
+
+# Prepare data for plotting
+data_to_plot <- FetchData(subset_seurat, vars = top_genes)
+
+# Add metadata for grouping
+data_to_plot$cell_type <- ifelse(rownames(data_to_plot) %in% barcodesA, 'Group A', 'Group B')
+
+# Reshape data for ggplot
+library(reshape2)
+data_melted <- melt(data_to_plot, id.vars = 'cell_type')
+
+# Generate violin plots
+violin_plot <- ggplot(data_melted, aes(x = variable, y = value, fill = cell_type)) +
+  geom_violin(trim = FALSE) +
+  labs(title = 'Violin Plots of Top 10 Differentially Expressed Genes',
+       x = 'Genes',
+       y = 'Expression') +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Save the violin plot
+ggsave('violin_plots.pdf', plot = violin_plot, width = 10, height = 6)
+"

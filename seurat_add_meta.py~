@@ -1,0 +1,52 @@
+import argparse
+import sys
+import rpy2.robjects as ro
+from rpy2.robjects import r
+
+def update_meta_data(sobj_file, col_orig, col_new, value_mapping):
+    """
+    Updates the Seurat object's meta.data with a new column based on the provided value mappings.
+    """
+    # Load the Seurat object in R
+    r(f'sobj <- readRDS("{sobj_file}")')
+
+    # Parse the value mapping into a dictionary
+    mapping_dict = dict(item.split(':') for item in value_mapping.split(','))
+
+    # Create the value mapping in R and apply it
+    r(f'''
+    mapping <- list({', '.join([f'"{k}" = "{v}"' for k, v in mapping_dict.items()])})
+
+    sobj@meta.data[["{col_new}"]] <- with(sobj@meta.data, ifelse({col_orig} %in% names(mapping), mapping[[as.character({col_orig})]], as.character({col_orig})))
+
+    # Save the updated Seurat object with "_nb_meta" suffix
+    saveRDS(sobj, sub(".rds", "_nb_meta.rds", "{sobj_file}"))
+
+    # Print friendly feedback
+    old_values <- unique(sobj@meta.data[[col_orig]])
+    new_values <- unique(sobj@meta.data[[col_new]])
+
+    cat("Added new column '{col_new}'.\\nOld values in '{col_orig}':", old_values, "\\nMapped to new values in '{col_new}':", new_values, "\\n")
+    ''')
+
+def main():
+    # Initialize argument parser
+    parser = argparse.ArgumentParser(
+        description='Add a new column to Seurat meta.data based on value mappings.',
+        epilog='Example usage: python seurat_add_meta.py Zhang2024_CRC_GSE236581_tregs.rds Tissue Tissue_rds Tumor:colon_tumor,Normal:colon,Blood:pbmc'
+    )
+
+    # Define arguments
+    parser.add_argument('sobj', type=str, help='Path to the Seurat RDS file.')
+    parser.add_argument('col_orig', type=str, help='The original column name in meta.data.')
+    parser.add_argument('col_new', type=str, help='The new column name to create in meta.data.')
+    parser.add_argument('value_mapping', type=str, help='Value mappings in the format old_value:new_value separated by commas.')
+
+    # Parse arguments
+    args = parser.parse_args()
+
+    # Call the update_meta_data function
+    update_meta_data(args.sobj, args.col_orig, args.col_new, args.value_mapping)
+
+if __name__ == '__main__':
+    main()

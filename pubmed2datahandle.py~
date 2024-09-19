@@ -11,6 +11,7 @@ nlp = spacy.load("en_core_web_sm")
 cancer_types = {
     "LAML": ["acute myeloid leukemia"],
     "ACC": ["adrenocortical carcinoma"],
+    "BCC": ["basal cell carcinoma"],
     "BLCA": ["bladder urothelial carcinoma"],
     "LGG": ["brain lower grade glioma"],
     "BRCA": ["breast invasive carcinoma"],
@@ -38,7 +39,7 @@ cancer_types = {
     "PRAD": ["prostate adenocarcinoma"],
     "READ": ["rectum adenocarcinoma"],
     "SARC": ["sarcoma"],
-    "SKCM": ["skin cutaneous melanoma","basal cell carcinoma","squamous cell carcinoma"], # Note: putting BCC so that it's under SKIN
+    "SKCM": ["skin cutaneous melanoma"],
     "STAD": ["stomach adenocarcinoma"],
     "TGCT": ["testicular germ cell tumors"],
     "THYM": ["thymoma"],

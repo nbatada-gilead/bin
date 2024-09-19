@@ -82,6 +82,16 @@ if (length(genes_list) > 0) {
   cat('--------------------\n')
 }
 
+# Create a separate file to store the barcode presence data
+barcodes <- rownames(sobj@meta.data)
+rds_barcodes <- colnames(GetAssayData(sobj, assay = assay_name))
+barcode_presence <- ifelse(rds_barcodes %in% barcodes, 1, 0)
+output_file <- paste0(substr('$RDS_FILE', 1, nchar('$RDS_FILE') - 4), '_barcode_presence.tsv')
+write.table(data.frame(Barcode = rds_barcodes, Presence = barcode_presence), 
+            file = output_file, sep = '\t', quote = FALSE, row.names = FALSE)
+cat(sprintf('Barcode presence data written to %s\n', output_file))
+
+# Export RNA counts and scaled data if requested
 if ('$EXPORT_DATA' == 'True') {
    # Export meta.data as TSV
    meta_file <- paste0(substr('$RDS_FILE', 1, nchar('$RDS_FILE') - 4), '_meta.tsv')

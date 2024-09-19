@@ -98,7 +98,7 @@ all_barcodes <- c(barcodesA, barcodesB)
 
 # Access the data layer using LayerData() and ensure it returns a matrix
 ## data_layer <- LayerData(seurat_obj, assay = "RNA", layer = "count")[top10_genes, all_barcodes]
-data_layer <- GetAssayData(seurat_obj, assay = "RNA", layer = "data")[top10_genes, all_barcodes]
+data_layer <- GetAssayData(seurat_obj, assay = "RNA", slot = "data")[top10_genes, all_barcodes]
 
 # Convert to matrix if necessary
 data_layer <- as.matrix(data_layer)

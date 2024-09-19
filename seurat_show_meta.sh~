@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Usage: seurat_show_meta.sh sobj.rds
+
+# Check if the file is provided
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 sobj.rds"
+    exit 1
+fi
+
+# Store the RDS object path
+SOBJ_PATH=$1
+
+# R script to list meta.data columns and their unique values
+Rscript - <<EOF
+library(Seurat)
+
+# Load Seurat object
+sobj <- readRDS("$SOBJ_PATH")
+
+# Access the meta.data
+meta_data <- sobj@meta.data
+
+# For each column, show up to 10 unique values by frequency
+for (col in colnames(meta_data)) {
+    cat("Column:", col, "\n")
+    
+    unique_values <- table(meta_data[[col]])
+    sorted_values <- sort(unique_values, decreasing = TRUE)
+    
+    # Show top 10 unique values or less
+    top_values <- head(sorted_values, 10)
+    
+    # Print the unique values
+    print(top_values)
+    cat("\n")
+}
+EOF
