@@ -25,6 +25,7 @@ Rscript - <<EOF
 # Load necessary libraries
 library(Seurat)
 packageVersion("Seurat")
+
 # Load Seurat object
 sobj <- readRDS("${SEURAT_RDS}")
 
@@ -36,26 +37,28 @@ barcodesB <- readLines("${BARCODE_B}")
 sobj_A <- subset(sobj, cells = barcodesA)
 sobj_B <- subset(sobj, cells = barcodesB)
 
-# Add cell type metadata
-sobj_A\$cell_type <- "A"
-sobj_B\$cell_type <- "B"
+print(dim(sobj_A))
+print(dim(sobj_B))
 
 # Merge Seurat objects
 sobj_combined <- merge(sobj_A, sobj_B)
 
-# Join layers for the combined Seurat object
-## sobj_combined <- JoinLayers(sobj_combined)
+# Add 'cell_type' metadata to distinguish between A and B cells
+sobj_combined\$cell_type_temp <- ifelse(Cells(sobj_combined) %in% barcodesA, "A", "B")
 
-sobj_combined <- NormalizeData(sobj_combined) ##
+# Check if 'data' layer exists and normalize if it doesn't
+if (!"data" %in% Assays(sobj_combined)) {
+  sobj_combined <- NormalizeData(sobj_combined)
+}
 
-# Set cell identity
-Idents(sobj_combined) <- "cell_type"
+#print(colnames(sobj_combined@meta.data))
+
+# Set cell identity using 'cell_type' metadata column
+Idents(sobj_combined) <- "cell_type_temp"
 
 # Perform differential expression analysis
-# https://satijalab.org/seurat/articles/de_vignette
-markers <- FindMarkers(sobj_combined, ident.1 = "A", ident.2 = "B", logfc.threshold = 0.25, test.use="wilcox", min.pct=0.25, min.diff.pct=0.25, min.cells.group=10)
+markers <- FindMarkers(sobj_combined, ident.1 = "A", ident.2 = "B", logfc.threshold = 0.25, test.use="wilcox", min.pct=0.25, min.diff.pct=0.25, min.cells.group=8)
 
 # Write results to the specified output file
-write.table(markers, file = "${OUTPUT_FILE}", sep = "\t", quote = FALSE, row.names = TRUE)
+write.table(markers, file = "${OUTPUT_FILE}", sep = ",", quote = FALSE, row.names = TRUE)
 EOF
-

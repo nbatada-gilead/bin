@@ -12,6 +12,7 @@ cancer_types = {
     "LAML": ["acute myeloid leukemia"],
     "ACC": ["adrenocortical carcinoma"],
     "BLCA": ["bladder urothelial carcinoma"],
+    "BCC": ["basal cell carcinoma","squamous cell carcinoma"], # Skin
     "LGG": ["brain lower grade glioma"],
     "BRCA": ["breast invasive carcinoma"],
     "CESC": ["cervical squamous cell carcinoma", "endocervical adenocarcinoma"],
@@ -22,7 +23,7 @@ cancer_types = {
     "ESCA": ["esophageal carcinoma"],
     "FPPP": ["ffpe pilot phase ii"],
     "GBM": ["glioblastoma multiforme"],
-    "HNSC": ["head and neck squamous cell carcinoma"],
+    "HNSC": ["head and neck squamous cell carcinoma", "head and neck","nasopharyngeal"],
     "KICH": ["kidney chromophobe"],
     "KIRC": ["kidney renal clear cell carcinoma"],
     "KIRP": ["kidney renal papillary cell carcinoma"],
@@ -38,8 +39,8 @@ cancer_types = {
     "PRAD": ["prostate adenocarcinoma"],
     "READ": ["rectum adenocarcinoma"],
     "SARC": ["sarcoma"],
-    "SKCM": ["skin cutaneous melanoma","basal cell carcinoma","squamous cell carcinoma"], # Note: putting BCC so that it's under SKIN
-    "STAD": ["stomach adenocarcinoma"],
+    "SKCM": ["skin cutaneous melanoma"],
+    "STAD": ["stomach adenocarcinoma", "gastric adenocarcinoma", "gastric tumor", "gastric"],
     "TGCT": ["testicular germ cell tumors"],
     "THYM": ["thymoma"],
     "THCA": ["thyroid carcinoma"],

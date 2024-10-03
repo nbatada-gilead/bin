@@ -15,8 +15,17 @@ Rscript -e "
 library(ggplot2)
 library(dplyr)
 
+# Define the file path from the command line argument directly in the R script
+file_path <- commandArgs(trailingOnly=TRUE)[1]
+
 # Load the differential expression results
-deg_results <- read.csv('$DIFF_EXPR_FILE', sep='\t', header=TRUE, row.names=1)
+deg_results <- read.csv(file_path, sep=',', header=TRUE, row.names=1)
+
+# Convert p_val to numeric, coercing any non-numeric values to NA
+deg_results\$p_val <- as.numeric(as.character(deg_results\$p_val))
+
+# Handling any possible NAs in p_val before computing log10
+deg_results <- deg_results[!is.na(deg_results\$p_val),]
 
 # Create a new column for -log10(p_value)
 deg_results\$neg_log10_pval <- -log10(deg_results\$p_val)
@@ -53,6 +62,4 @@ volcano_plot <- volcano_plot +
 
 # Save the plot
 ggsave('volcano_plot.pdf', plot = volcano_plot, width = 8, height = 6)
-"
-
-
+" $DIFF_EXPR_FILE
